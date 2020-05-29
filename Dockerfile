@@ -1,6 +1,6 @@
 FROM centos:7
 
-LABEL org.opencontainers.image.source="https://github.com/giovtorres/slurm-docker-cluster" \
+LABEL org.opencontainers.image.source="https://github.com/mgnisia/slurm-docker-cluster" \
       org.opencontainers.image.title="slurm-docker-cluster" \
       org.opencontainers.image.description="Slurm Docker cluster on CentOS 7" \
       org.label-schema.docker.cmd="docker-compose up -d" \
@@ -34,6 +34,11 @@ RUN set -ex \
        psmisc \
        bash-completion \
        vim-enhanced \
+       cmake \
+       centos-release-scl\ 
+       devtoolset-9-gcc\
+       devtoolset-9-gcc-c++\
+       patch\
     && yum clean all \
     && rm -rf /var/cache/yum
 
@@ -87,6 +92,14 @@ COPY slurm.conf /etc/slurm/slurm.conf
 COPY slurmdbd.conf /etc/slurm/slurmdbd.conf
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+# Setup Spack
+RUN git clone https://github.com/spack/spack && cd spack && git checkout releases/v0.14 && source scl_source enable devtoolset-9 && . share/spack/setup-env.sh
+RUN mkdir -p /root/.spack/
+COPY packages.yaml /root/.spack/packages.yaml
+RUN . ~/spack/share/spack/setup-env.sh &&\
+    spack install -y hpx@1.4.1
+
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 CMD ["slurmdbd"]
