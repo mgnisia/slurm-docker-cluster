@@ -1,0 +1,20 @@
+packages:
+  bzip2:
+    paths:
+        bzip2@1.0.8: /usr
+    buildable: False
+  cmake:
+    modules:
+      cmake: [cmake]
+    paths:
+      cmake:
+        /usr/bin/cmake/
+    buildable: false
+  git:
+    modules:
+      git: [git]
+    paths:
+      git:
+        /usr/bin/git/
+    buildable: false
+
