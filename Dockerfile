@@ -1,18 +1,19 @@
-FROM centos:7
+FROM centos:8
 
 LABEL org.opencontainers.image.source="https://github.com/mgnisia/slurm-docker-cluster" \
       org.opencontainers.image.title="slurm-docker-cluster" \
-      org.opencontainers.image.description="Slurm Docker cluster on CentOS 7" \
+      org.opencontainers.image.description="Slurm Docker cluster on CentOS 8" \
       org.label-schema.docker.cmd="docker-compose up -d" \
       maintainer="Giovanni Torres"
 
-ARG SLURM_TAG=slurm-19-05-1-2
-ARG GOSU_VERSION=1.11
+ARG SLURM_TAG=slurm-20-02-3-1
+ARG GOSU_VERSION=1.12
 
 RUN set -ex \
-    && yum makecache fast \
+    && yum makecache \
     && yum -y update \
-    && yum -y install epel-release \
+    && yum -y install epel-release dnf-plugins-core
+RUN dnf config-manager --set-enabled PowerTools\
     && yum -y install \
        wget \
        bzip2 \
@@ -24,25 +25,21 @@ RUN set -ex \
        make \
        munge \
        munge-devel \
-       python-devel \
-       python-pip \
-       python34 \
-       python34-devel \
-       python34-pip \
+       python3-devel \
+    #    python34 \
+    #    python34-devel \
+    #    python34-pip \
        mariadb-server \
        mariadb-devel \
        psmisc \
        bash-completion \
        vim-enhanced \
        cmake \
-       centos-release-scl\ 
-       devtoolset-9-gcc\
-       devtoolset-9-gcc-c++\
        patch\
     && yum clean all \
     && rm -rf /var/cache/yum
 
-RUN pip install Cython nose && pip3.4 install Cython nose
+RUN pip3 install Cython nose
 
 RUN set -ex \
     && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64" \
@@ -54,7 +51,8 @@ RUN set -ex \
     && chmod +x /usr/local/bin/gosu \
     && gosu nobody true
 
-RUN set -x \
+# RUN echo 'alias python="python3"' >> ~/.bashrc
+RUN set -x\
     && git clone https://github.com/SchedMD/slurm.git \
     && pushd slurm \
     && git checkout tags/$SLURM_TAG \
@@ -67,8 +65,8 @@ RUN set -x \
     && install -D -m644 contribs/slurm_completion_help/slurm_completion.sh /etc/profile.d/slurm_completion.sh \
     && popd \
     && rm -rf slurm \
-    && groupadd -r --gid=995 slurm \
-    && useradd -r -g slurm --uid=995 slurm \
+    && groupadd -r slurm \
+    && useradd -r -g slurm slurm \
     && mkdir /etc/sysconfig/slurm \
         /var/spool/slurmd \
         /var/run/slurmd \
@@ -92,13 +90,13 @@ COPY slurm.conf /etc/slurm/slurm.conf
 COPY slurmdbd.conf /etc/slurm/slurmdbd.conf
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+ENV LC_ALL en_NZ.utf8
+ENV LANG en_NZ.
 
 # Setup Spack
-RUN git clone https://github.com/spack/spack && cd spack && git checkout releases/v0.14 && source scl_source enable devtoolset-9 && . share/spack/setup-env.sh
+RUN git clone https://github.com/spack/spack && cd spack && pwd && git checkout releases/v0.14 && . share/spack/setup-env.sh
 RUN mkdir -p /root/.spack/
 COPY packages.yaml /root/.spack/packages.yaml
-RUN . ~/spack/share/spack/setup-env.sh &&\
-    spack install -y hpx@1.4.1
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
