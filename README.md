@@ -27,7 +27,7 @@ The compose file will create the following named volumes:
 Build the image locally:
 
 ```console
-docker build -t slurm-docker-cluster:19.05.1 .
+docker build -t slurm-docker-cluster:spack .
 ```
 
 Build a different version of Slurm using Docker build args and the Slurm Git
@@ -112,3 +112,5 @@ docker-compose stop
 docker-compose rm -f
 docker volume rm slurm-docker-cluster_etc_munge slurm-docker-cluster_etc_slurm slurm-docker-cluster_slurm_jobdir slurm-docker-cluster_var_lib_mysql slurm-docker-cluster_var_log_slurm
 ```
+
+You should run those commands especially when you change the `Dockerfile`, otherwise you can run into permissions errors like in munge where the `/etc/munge/munge.key`.
