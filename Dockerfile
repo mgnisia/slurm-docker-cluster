@@ -26,9 +26,6 @@ RUN dnf config-manager --set-enabled PowerTools\
        munge \
        munge-devel \
        python3-devel \
-    #    python34 \
-    #    python34-devel \
-    #    python34-pip \
        mariadb-server \
        mariadb-devel \
        psmisc \
@@ -51,7 +48,6 @@ RUN set -ex \
     && chmod +x /usr/local/bin/gosu \
     && gosu nobody true
 
-# RUN echo 'alias python="python3"' >> ~/.bashrc
 RUN set -x\
     && git clone https://github.com/SchedMD/slurm.git \
     && pushd slurm \

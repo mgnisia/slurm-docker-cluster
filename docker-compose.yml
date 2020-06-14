@@ -2,11 +2,11 @@ version: "2.2"
 
 services:
   mysql:
-    image: mysql:5.7
+    image: mariadb:10.5.3
     hostname: mysql
     container_name: mysql
     environment:
-      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_ROOT_PASSWORD: "password"
       MYSQL_DATABASE: slurm_acct_db
       MYSQL_USER: slurm
       MYSQL_PASSWORD: password
@@ -58,7 +58,7 @@ services:
       - "slurmctld"
 
   c2:
-    image: slurm-docker-cluster:spack
+    image: slurm-docker-cluster:hpce
     command: ["slurmd"]
     hostname: c2
     container_name: c2
