@@ -58,7 +58,7 @@ services:
       - "slurmctld"
 
   c2:
-    image: slurm-docker-cluster:hpce
+    image: slurm-docker-cluster:spack
     command: ["slurmd"]
     hostname: c2
     container_name: c2
